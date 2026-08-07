@@ -6,7 +6,7 @@
   <title>Gemini Watermark Remover - 智能无损去水印</title>
   <!-- 引入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 引入 JSZip 用于实现真正的打包 ZIP 下载 -->
+  <!-- 引入 JSZip 用于打包 ZIP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script>
     tailwind.config = {
@@ -27,10 +27,10 @@
     }
     .animate-glow { animation: pulseGlow 4s ease-in-out infinite; }
     
-    /* 优化批量网格与卡片内文字美观度 */
+    /* 批量网格美化 */
     #imageList {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1.5rem;
       padding: 1.5rem;
     }
@@ -50,10 +50,23 @@
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
       border-color: #cbd5e1;
     }
-    /* 修复原项目内生文字过小、不好看的问题 */
-    #imageList span, #imageList p, #imageList div {
-      font-size: 11px;
-      color: #475569;
+
+    /* === 核心：彻底隐藏卡片中不需要的杂乱文字、原图提示、文件名等 === */
+    #imageList span:not(button span), 
+    #imageList p, 
+    #imageList .text-xs, 
+    #imageList .text-sm {
+      display: none !important;
+    }
+    /* 仅保留处理后的无水印大图和底部的下载/复制按钮 */
+    #imageList img:first-child {
+      display: none !important; /* 隐藏原图，只留去水印后的图 */
+    }
+    #imageList img {
+      border-radius: 0.75rem;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
     }
   </style>
   <script>
@@ -81,7 +94,7 @@
       observer.observe(singlePreview, { attributes: true, attributeFilter: ['style'] });
       observer.observe(multiPreview, { attributes: true, attributeFilter: ['style'] });
 
-      // 完美实现一键打包为 ZIP 下载
+      // 注入一键打包 ZIP 下载逻辑
       const multiHeader = document.querySelector('#multiPreview .bg-slate-50');
       if (multiHeader && !document.getElementById('downloadZipBtn')) {
         const downloadZipBtn = document.createElement('button');
@@ -99,7 +112,6 @@
           const zip = new JSZip();
           const folder = zip.folder("gemini-watermark-removed");
           
-          // 获取所有处理后的无水印图片元素
           const images = document.querySelectorAll('#imageList img');
           if (images.length === 0) {
             alert('当前没有可打包的图片，请等待处理完成。');
@@ -112,7 +124,6 @@
           let addedCount = 0;
           for (let i = 0; i < images.length; i++) {
             const img = images[i];
-            // 确保获取的是处理后的图片（通常在队列后半部分或带有特定类名）
             if (img.src && img.src.startsWith('data:image')) {
               const base64Data = img.src.split(',')[1];
               folder.file(`clean_image_${i + 1}.png`, base64Data, { base64: true });
@@ -262,7 +273,7 @@
       </div>
     </section>
 
-    <!-- 批量预览区 -->
+    <!-- 批量预览区（已通过 CSS 隐藏所有多余文字与原图对比，只留干净的无水印图与按钮） -->
     <section id="multiPreview" class="w-full max-w-6xl mx-auto" style="display: none;">
       <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
@@ -274,7 +285,6 @@
             <button id="batchResetBtn" class="py-2 px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-[0.98] rounded-xl text-xs font-semibold transition-all">
               清空并重新开始
             </button>
-            <!-- 动态注入的 ZIP 打包下载按钮 -->
           </div>
         </div>
         <div id="imageList"></div>
