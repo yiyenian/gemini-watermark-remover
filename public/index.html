@@ -3,16 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gemini Watermark Remover - 内部媒体预览</title>
-  <meta name="description" content="Internal image and video preview harness for the open-source Gemini watermark remover.">
-  <meta name="robots" content="noindex, nofollow">
-  <link rel="canonical" href="https://geminiwatermarkremover.io/">
+  <title>Gemini Watermark Remover - 在线去水印工具</title>
+  <meta name="description" content="High-performance client-side tool for removing Gemini AI image & video watermarks.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg class='h-10 w-10 text-emerald-500' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l-1.9 5.8-5.8 1.9 5.8 1.9 1.9 5.8 1.9-5.8 5.8-1.9-5.8-1.9z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="dev-preview.css">
   <script>
-    // The legacy i18n bootstrap used to strip `loading` from <body> once translations
-    // were applied. After retiring that module, nothing cleared the class and the
-    // page stayed at opacity:0 (blank). Clear it as soon as the DOM is parsed.
     document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('loading');
     });
@@ -27,30 +22,20 @@
         </svg>
         <div>
           <a href="./" class="text-sm md:text-xl font-bold tracking-tight text-primary hover:text-primary-hover transition-colors">Gemini Watermark Remover</a>
-          <p class="text-xs text-gray-500">内部媒体预览 harness</p>
+          <p class="text-xs text-gray-500">无损反向 Alpha 混合去水印</p>
         </div>
       </div>
-      <nav class="flex gap-3 text-sm font-medium text-gray-600 items-center">
-        <a href="userscript/gemini-watermark-remover.user.js" target="_blank" class="hidden md:inline-block hover:text-primary transition-colors">Userscript</a>
-        <a href="https://geminiwatermarkremover.io/" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">官网</a>
-      </nav>
     </div>
   </header>
 
   <main class="flex-grow bg-gray-50/50 pb-12">
     <section class="pt-12 pb-8 text-center px-4">
       <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-        内部图片 / 视频去水印预览
+        Gemini AI 图像 / 视频去水印
       </h1>
-      <p class="text-gray-500 max-w-2xl mx-auto mb-6 text-sm md:text-base">
-        选择图片会在本页对比处理结果，选择视频会进入本地视频处理流程。
+      <p class="text-gray-500 max-w-2xl mx-auto mb-8 text-sm md:text-base">
+        上传 Gemini 生成的图片或视频，纯本地数学计算，零画质损失，不会上传任何数据。
       </p>
-
-      <div class="max-w-xl mx-auto flex items-center justify-center gap-2 text-sm text-gray-500 bg-white border border-gray-200 rounded-full px-4 py-1.5 shadow-sm mb-8">
-        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <span>这是保留的内部调试页，并非公开产品。</span>
-        <a href="https://geminiwatermarkremover.io/" target="_blank" rel="noopener noreferrer" class="font-medium text-gray-700 hover:text-black underline underline-offset-2">前往官网</a>
-      </div>
 
       <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div id="uploadArea" class="group relative flex flex-col items-center justify-center w-full h-56 hover:bg-gray-50 transition-colors cursor-pointer">
@@ -60,7 +45,7 @@
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </div>
             <p class="mb-1 text-base font-medium text-gray-800">点击或拖拽文件到此处</p>
-            <p class="text-xs text-gray-400">支持多选 JPG, PNG, WebP；视频会进入视频流程</p>
+            <p class="text-xs text-gray-400">支持多选 JPG, PNG, WebP 及视频文件</p>
           </div>
           <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime,video/*" multiple class="hidden" />
         </div>
@@ -140,14 +125,9 @@
     </section>
   </main>
 
-  <footer class="bg-emerald-600 text-white py-8 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="text-emerald-100 text-sm mb-4">
-        内部调试页仅用于本地快速验证，请以官网和 userscript 主流程为准。
-      </p>
-      <div class="text-sm font-medium">
-        <a href="https://allenkuo.medium.com/removing-gemini-ai-watermarks-a-deep-dive-into-reverse-alpha-blending-bbbd83af2a3f" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">去水印原理</a>
-      </div>
+  <footer class="bg-emerald-600 text-white py-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm text-emerald-100">
+      <p>Gemini Watermark Remover — 100% Client-side Processing</p>
     </div>
   </footer>
 
