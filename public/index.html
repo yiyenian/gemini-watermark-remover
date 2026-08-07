@@ -21,7 +21,7 @@
   <style>
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-6px); }
+      50% { transform: translateY(-4px); }
     }
     @keyframes pulseGlow {
       0%, 100% { opacity: 0.3; transform: scale(1); }
@@ -36,59 +36,59 @@
     });
   </script>
 </head>
-<body class="h-full bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white flex flex-col justify-between loading overflow-hidden relative">
+<body class="h-full bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white flex flex-col justify-between loading overflow-x-hidden relative">
 
   <!-- 动态柔和浅色背景光晕 -->
   <div class="absolute top-10 left-1/3 w-96 h-96 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none animate-glow"></div>
   <div class="absolute bottom-10 right-1/4 w-96 h-96 bg-cyan-200/30 rounded-full blur-3xl pointer-events-none animate-glow" style="animation-delay: 2s;"></div>
 
-  <!-- 顶部导航 (首屏融入) -->
-  <header class="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between z-20 flex-shrink-0">
+  <!-- 顶部导航 -->
+  <header class="w-full max-w-7xl mx-auto px-6 py-3 flex items-center justify-between z-20 flex-shrink-0">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="m12 3-1.9 5.8-5.8 1.9 5.8 1.9 1.9 5.8 1.9-5.8 5.8-1.9-5.8-1.9Z"></path>
         </svg>
       </div>
       <div>
-        <span class="text-sm sm:text-base font-bold tracking-tight text-slate-900 block leading-tight">Gemini Watermark Remover</span>
-        <span class="text-[11px] text-emerald-600 font-semibold">反向 Alpha 混合矩阵引擎</span>
+        <span class="text-xs sm:text-sm font-bold tracking-tight text-slate-900 block leading-tight">Gemini Watermark Remover</span>
+        <span class="text-[10px] text-emerald-600 font-semibold">反向 Alpha 混合矩阵引擎</span>
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 shadow-xs">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        100% 浏览器本地计算
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 shadow-xs">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        100% 本地计算
       </span>
     </div>
   </header>
 
-  <!-- 主体内容区 (全屏自适应完美居中) -->
-  <main class="w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center z-10 flex-grow my-auto">
+  <!-- 主体内容区 (进一步扩展宽度和尺寸) -->
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center justify-center z-10 flex-grow my-auto py-1">
     
-    <!-- 标题和介绍 -->
-    <div class="text-center max-w-xl mx-auto mb-8">
-      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2.5">
+    <!-- 标题和介绍 (未上传文件时显示) -->
+    <div id="heroSection" class="text-center max-w-xl mx-auto mb-4">
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-1">
         一键清除 Gemini 水印
       </h1>
-      <p class="text-slate-500 text-xs sm:text-sm leading-relaxed">
+      <p class="text-slate-500 text-xs leading-relaxed">
         拒绝 AI 模糊涂抹，采用数学精确的反向混合矩阵，像素级无损完美复原。
       </p>
     </div>
 
-    <!-- 上传卡片区域（带浮动与现代玻璃态浅色质感） -->
-    <div class="w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/60 border border-slate-200/80 p-6 sm:p-8 transition-all duration-300 hover:shadow-emerald-500/10 animate-float">
-      <div id="uploadArea" class="group relative flex flex-col items-center justify-center w-full h-56 sm:h-64 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 hover:bg-emerald-50/40 hover:border-emerald-400 transition-all duration-300 cursor-pointer">
+    <!-- 上传卡片区域 -->
+    <div id="uploadCardWrapper" class="w-full max-w-4xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/60 border border-slate-200/80 p-5 transition-all duration-300 animate-float">
+      <div id="uploadArea" class="group relative flex flex-col items-center justify-center w-full h-44 sm:h-52 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/70 hover:bg-emerald-50/40 hover:border-emerald-400 transition-all duration-300 cursor-pointer">
         <div class="flex flex-col items-center justify-center relative z-10 px-4 text-center">
-          <div class="w-14 h-14 bg-gradient-to-br from-white to-slate-100 rounded-2xl shadow-md border border-slate-200/80 flex items-center justify-center mb-4 text-emerald-600 group-hover:scale-110 group-hover:border-emerald-400 transition-all duration-300">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-10 h-10 bg-gradient-to-br from-white to-slate-100 rounded-xl shadow-md border border-slate-200/80 flex items-center justify-center mb-2.5 text-emerald-600 group-hover:scale-110 group-hover:border-emerald-400 transition-all duration-300">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
           </div>
-          <p class="mb-1 text-sm sm:text-base font-bold text-slate-700 group-hover:text-emerald-700 transition-colors">
+          <p class="mb-1 text-sm font-bold text-slate-700 group-hover:text-emerald-700 transition-colors">
             点击或将图片/视频拖拽到此处
           </p>
-          <p class="text-[11px] text-slate-400">
+          <p class="text-[10px] text-slate-400">
             支持 JPG、PNG、WebP 图片及主流视频文件（支持多选批量处理）
           </p>
         </div>
@@ -96,14 +96,14 @@
       </div>
     </div>
 
-    <!-- 单张预览区 (默认隐藏) -->
-    <section id="singlePreview" class="w-full mt-4" style="display: none;">
-      <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 p-6 flex flex-col lg:flex-row gap-6">
-        <div class="flex-1 overflow-hidden">
-          <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
+    <!-- 单张预览区 (最大化铺满屏幕，图片高度提升至 82vh) -->
+    <section id="singlePreview" class="w-full mt-1" style="display: none;">
+      <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 p-4 sm:p-5 flex flex-col lg:flex-row gap-5 items-center">
+        <div class="flex-1 w-full overflow-hidden">
+          <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-slate-100">
             <h3 class="text-xs font-bold text-slate-700 flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              效果对比预览
+              效果对比预览（左右拖动滑块查看无水印大图）
             </h3>
             <div class="flex gap-4">
               <span id="originalInfo" class="text-[11px] text-slate-400 font-mono"></span>
@@ -111,10 +111,11 @@
             </div>
           </div>
 
-          <div class="relative w-full flex items-center justify-center bg-slate-100 rounded-2xl overflow-hidden select-none min-h-[300px] border border-slate-200">
+          <!-- 最大化大图容器 -->
+          <div class="relative w-full flex items-center justify-center bg-slate-100 rounded-2xl overflow-hidden select-none min-h-[550px] sm:min-h-[680px] border border-slate-200">
             <div id="comparisonContainer" class="relative mx-auto w-fit max-w-full">
-              <img id="originalImage" class="block w-auto h-auto max-w-full max-h-[50vh] object-contain object-right-bottom rounded-xl" draggable="false" />
-              <div id="processedOverlay" class="absolute top-0 left-0 h-full w-[50%] overflow-hidden border-r-2 border-emerald-500 shadow-xl box-content z-10" style="display: none;">
+              <img id="originalImage" class="block w-auto h-auto max-w-full max-h-[82vh] object-contain object-right-bottom rounded-xl shadow-sm" draggable="false" />
+              <div id="processedOverlay" class="absolute top-0 left-0 h-full w-[50%] overflow-hidden border-r-2 border-emerald-500 shadow-2xl box-content z-10" style="display: none;">
                 <img id="processedImage" class="block h-full max-w-none object-contain object-right-bottom" draggable="false" />
               </div>
               <div id="sliderHandle" class="absolute top-0 bottom-0 w-10 -ml-5 z-20 cursor-col-resize flex items-center justify-center group-hover:opacity-100 transition-opacity" style="left: 50%; display: none;">
@@ -128,9 +129,9 @@
           </div>
         </div>
 
-        <!-- 操作控制面板 -->
-        <div class="w-full lg:w-64 flex-shrink-0 flex flex-col justify-between pt-1">
-          <div>
+        <!-- 右侧操作控制面板 -->
+        <div class="w-full lg:w-60 flex-shrink-0 flex flex-col justify-center">
+          <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
             <h4 class="text-xs font-bold text-slate-700 mb-3">操作选项</h4>
             <div class="space-y-2.5">
               <button id="copyBtn" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl text-xs font-bold transition-all duration-150 flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20" style="display: none;">
@@ -143,20 +144,20 @@
                 <span>下载无水印文件</span>
               </button>
 
-              <button id="resetBtn" class="w-full py-2.5 px-4 bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 active:scale-[0.98] rounded-xl text-xs font-bold transition-all duration-150 flex items-center justify-center gap-2">
+              <button id="resetBtn" class="w-full py-2.5 px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 active:scale-[0.98] rounded-xl text-xs font-bold transition-all duration-150 flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 <span>重新选择文件</span>
               </button>
             </div>
+            <div id="statusMessage" class="mt-2 text-[11px] text-slate-400 min-h-[1rem] text-center"></div>
           </div>
-          <div id="statusMessage" class="mt-2 text-[11px] text-slate-400 min-h-[1rem]"></div>
         </div>
       </div>
     </section>
 
     <!-- 批量预览区 (默认隐藏) -->
-    <section id="multiPreview" class="w-full mt-4" style="display: none;">
-      <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+    <section id="multiPreview" class="w-full mt-1" style="display: none;">
+      <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
           <div>
             <h3 class="text-xs font-bold text-slate-700">批量处理队列</h3>
@@ -166,14 +167,14 @@
             清空并重新开始
           </button>
         </div>
-        <div id="imageList" class="batch-list p-3"></div>
+        <div id="imageList" class="batch-list p-3 max-h-[70vh] overflow-y-auto"></div>
       </div>
     </section>
 
   </main>
 
-  <!-- 底部版权 (首屏完美融入) -->
-  <footer class="w-full max-w-7xl mx-auto px-6 py-4 z-20 flex-shrink-0 text-center text-[11px] text-slate-400">
+  <!-- 底部版权 -->
+  <footer class="w-full max-w-7xl mx-auto px-6 py-2 z-20 flex-shrink-0 text-center text-[10px] text-slate-400">
     <p>Gemini Watermark Remover &mdash; High Performance 100% Client-side Processing</p>
   </footer>
 
