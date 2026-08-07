@@ -6,7 +6,7 @@
   <title>Gemini Watermark Remover - 智能无损去水印</title>
   <!-- 引入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 引入 JSZip 用于打包 ZIP -->
+  <!-- 引入 JSZip 用于多图一键打包 ZIP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script>
     tailwind.config = {
@@ -27,81 +27,8 @@
     }
     .animate-glow { animation: pulseGlow 4s ease-in-out infinite; }
     
-    /* 批量网格大图布局优化：每行展示 2 或 3 个，卡片更大更舒适 */
-    #imageList {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-      padding: 2rem;
-    }
-    #imageList > div, .batch-item {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 1.5rem;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-      transition: all 0.2s ease;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    #imageList > div:hover {
-      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08);
-      border-color: #cbd5e1;
-    }
-
-    /* 隐藏原图对比，只保留去水印后的超大高清无水印图 */
-    #imageList img:first-of-type {
-      display: none !important; 
-    }
-    #imageList img {
-      width: 100% !important;
-      height: 320px !important;
-      object-fit: contain !important;
-      background: #f8fafc;
-      border-radius: 1rem;
-      margin-bottom: 1.25rem;
-    }
-    /* 隐藏杂乱文字和多余提示 */
-    #imageList span:not(button span), 
-    #imageList p, 
-    #imageList div:not(:has(button, img)), 
-    #imageList small {
-      display: none !important;
-    }
-    /* 底部按钮美化 */
-    #imageList div:has(button) {
-      display: flex !important;
-      gap: 0.75rem;
-      width: 100%;
-    }
-    #imageList button {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border-radius: 0.875rem;
-      font-size: 12px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      transition: all 0.15s ease;
-    }
-    #imageList button:first-child {
-      background: #f1f5f9;
-      color: #334155;
-    }
-    #imageList button:first-child:hover {
-      background: #e2e8f0;
-    }
-    #imageList button:last-child {
-      background: #0f172a;
-      color: #ffffff;
-    }
-    #imageList button:last-child:hover {
-      background: #10b981;
-    }
+    /* 彻底隐藏原作者丑陋的批量默认列表 */
+    #imageList { display: none !important; }
   </style>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -128,69 +55,114 @@
       observer.observe(singlePreview, { attributes: true, attributeFilter: ['style'] });
       observer.observe(multiPreview, { attributes: true, attributeFilter: ['style'] });
 
-      // 注入一键打包 ZIP 下载按钮
-      const multiHeader = document.querySelector('#multiPreview .bg-slate-50');
-      if (multiHeader && !document.getElementById('downloadZipBtn')) {
-        const downloadZipBtn = document.createElement('button');
-        downloadZipBtn.id = 'downloadZipBtn';
-        downloadZipBtn.className = 'py-2 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 ml-3';
-        downloadZipBtn.innerHTML = `
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          打包下载 ZIP 压缩包
+      // 核心拦截与画廊增强：把多图队列转化为“左右无缝切换”的沉浸式单图大图体验
+      let batchCleanImages = [];
+      let currentIndex = 0;
+
+      const observerImageList = new MutationObserver(() => {
+        const imgs = document.querySelectorAll('#imageList img');
+        batchCleanImages = [];
+        imgs.forEach(img => {
+          if (img.src && img.src.startsWith('data:image')) {
+            batchCleanImages.push(img.src);
+          }
+        });
+
+        // 如果有多张图，我们在操作面板注入“上一张/下一张”和“打包ZIP”按钮
+        if (batchCleanImages.length > 1) {
+          let navContainer = document.getElementById('batchNavContainer');
+          if (!navContainer) {
+            const panel = document.querySelector('#singlePreview .space-y-2.5');
+            if (panel) {
+              navContainer = document.createElement('div');
+              navContainer.id = 'batchNavContainer';
+              navContainer.className = 'flex gap-2 pt-2 border-t border-slate-100 mt-2';
+              navContainer.innerHTML = `
+                <button id="prevImgBtn" class="flex-1 py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1">
+                  &larr; 上一张
+                </button>
+                <button id="nextImgBtn" class="flex-1 py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1">
+                  下一张 &rarr;
+                </button>
+              `;
+              panel.appendChild(navContainer);
+
+              document.getElementById('prevImgBtn').onclick = () => {
+                if (batchCleanImages.length === 0) return;
+                currentIndex = (currentIndex - 1 + batchCleanImages.length) % batchCleanImages.length;
+                updateGalleryView();
+              };
+              document.getElementById('nextImgBtn').onclick = () => {
+                if (batchCleanImages.length === 0) return;
+                currentIndex = (currentIndex + 1) % batchCleanImages.length;
+                updateGalleryView();
+              };
+            }
+          }
+        }
+      });
+
+      const imageListEl = document.getElementById('imageList');
+      if (imageListEl) {
+        observerImageList.observe(imageListEl, { childList: true, subtree: true });
+      }
+
+      function updateGalleryView() {
+        if (batchCleanImages.length > 0 && batchCleanImages[currentIndex]) {
+          const processedImg = document.getElementById('processedImage');
+          if (processedImg) {
+            processedImg.src = batchCleanImages[currentIndex];
+            const statusMsg = document.getElementById('statusMessage');
+            if (statusMsg) statusMsg.innerText = `正在浏览第 ${currentIndex + 1} / ${batchCleanImages.length} 张图`;
+          }
+        }
+      }
+
+      // 注入打包 ZIP 按钮到单张控制面板下方
+      const panelParent = document.querySelector('#singlePreview .space-y-2.5');
+      if (panelParent && !document.getElementById('zipAllBtn')) {
+        const zipBtn = document.createElement('button');
+        zipBtn.id = 'zipAllBtn';
+        zipBtn.className = 'w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white active:scale-[0.98] rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 mt-2';
+        zipBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span>打包下载全部 ZIP</span>
         `;
-        downloadZipBtn.onclick = async () => {
+        zipBtn.onclick = async () => {
           if (typeof JSZip === 'undefined') {
-            alert('ZIP 库加载中，请稍后再试');
+            alert('ZIP 库加载中，请稍后');
             return;
           }
           const zip = new JSZip();
           const folder = zip.folder("gemini-watermark-removed");
-          
-          const images = document.querySelectorAll('#imageList img');
-          if (images.length === 0) {
-            alert('当前没有可打包的图片，请等待处理完成。');
+          const imgs = document.querySelectorAll('#imageList img');
+          if (imgs.length === 0) {
+            alert('暂无可打包的图片');
             return;
           }
-
-          downloadZipBtn.innerText = '正在打包 ZIP...';
-          downloadZipBtn.disabled = true;
-
-          let addedCount = 0;
-          for (let i = 0; i < images.length; i++) {
-            const img = images[i];
+          zipBtn.innerText = '正在打包...';
+          let count = 0;
+          imgs.forEach((img, idx) => {
             if (img.src && img.src.startsWith('data:image')) {
-              const base64Data = img.src.split(',')[1];
-              folder.file(`clean_image_${i + 1}.png`, base64Data, { base64: true });
-              addedCount++;
+              folder.file(`clean_${idx + 1}.png`, img.src.split(',')[1], { base64: true });
+              count++;
             }
-          }
-
-          if (addedCount === 0) {
-            alert('未检测到已处理完成的图片，请稍候再试。');
-            downloadZipBtn.innerText = '打包下载 ZIP 压缩包';
-            downloadZipBtn.disabled = false;
+          });
+          if (count === 0) {
+            alert('图片尚未处理完成');
+            zipBtn.innerText = '打包下载全部 ZIP';
             return;
           }
-
-          try {
-            const content = await zip.generateAsync({ type: "blob" });
-            const url = URL.createObjectURL(content);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `gemini_cleaned_images_${Date.now()}.zip`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          } catch (err) {
-            console.error(err);
-            alert('打包失败，请重试');
-          } finally {
-            downloadZipBtn.innerText = '打包下载 ZIP 压缩包';
-            downloadZipBtn.disabled = false;
-          }
+          const content = await zip.generateAsync({ type: "blob" });
+          const url = URL.createObjectURL(content);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `gemini_cleaned_${Date.now()}.zip`;
+          a.click();
+          URL.revokeObjectURL(url);
+          zipBtn.innerText = '打包下载全部 ZIP';
         };
-        multiHeader.querySelector('.flex').appendChild(downloadZipBtn);
+        panelParent.appendChild(zipBtn);
       }
     });
   </script>
@@ -214,7 +186,7 @@
   </header>
 
   <!-- 主体内容区 -->
-  <main class="w-full max-w-5xl mx-auto px-4 flex flex-col items-center justify-center z-10 flex-grow my-auto py-4">
+  <main class="w-full max-w-6xl mx-auto px-4 flex flex-col items-center justify-center z-10 flex-grow my-auto py-2">
     
     <!-- 标题和介绍 -->
     <div id="heroSection" class="text-center max-w-xl mx-auto mb-8">
@@ -246,7 +218,7 @@
       </div>
     </div>
 
-    <!-- 单张预览区 -->
+    <!-- 沉浸式大图滑块对比区（单图与多图通用，支持左右无缝对比与切换） -->
     <section id="singlePreview" class="w-full" style="display: none;">
       <div class="w-full flex flex-col lg:flex-row gap-6 items-center justify-center">
         <div class="flex-1 w-full overflow-hidden flex flex-col items-center">
@@ -261,9 +233,9 @@
             </div>
           </div>
 
-          <div class="relative w-full flex items-center justify-center bg-transparent rounded-2xl overflow-hidden select-none min-h-[600px] sm:min-h-[84vh]">
+          <div class="relative w-full flex items-center justify-center bg-transparent rounded-2xl overflow-hidden select-none min-h-[600px] sm:min-h-[82vh]">
             <div id="comparisonContainer" class="relative mx-auto w-fit max-w-full">
-              <img id="originalImage" class="block w-auto h-auto max-w-full max-h-[86vh] object-contain object-right-bottom rounded-xl shadow-lg" draggable="false" />
+              <img id="originalImage" class="block w-auto h-auto max-w-full max-h-[84vh] object-contain object-right-bottom rounded-xl shadow-lg" draggable="false" />
               <div id="processedOverlay" class="absolute top-0 left-0 h-full w-[50%] overflow-hidden border-r-2 border-emerald-500 shadow-2xl box-content z-10" style="display: none;">
                 <img id="processedImage" class="block h-full max-w-none object-contain object-right-bottom" draggable="false" />
               </div>
@@ -303,22 +275,9 @@
       </div>
     </section>
 
-    <!-- 批量预览区：完美展示高清无水印大图网格 -->
-    <section id="multiPreview" class="w-full max-w-6xl mx-auto" style="display: none;">
-      <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
-        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-          <div>
-            <h3 class="text-sm font-bold text-slate-700">批量处理队列</h3>
-            <p id="progressText" class="text-xs text-slate-400 mt-0.5">处理进度: 0/0</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="batchResetBtn" class="py-2 px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-[0.98] rounded-xl text-xs font-semibold transition-all">
-              清空并重新开始
-            </button>
-          </div>
-        </div>
-        <div id="imageList"></div>
-      </div>
+    <!-- 隐藏原生的多图网格，由后台逻辑自动驱动滑块画廊切换 -->
+    <section id="multiPreview" class="w-full" style="display: none;">
+      <div id="imageList"></div>
     </section>
 
   </main>
