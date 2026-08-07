@@ -4,64 +4,96 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gemini Watermark Remover - 智能无损去水印</title>
-  <meta name="description" content="High-performance client-side tool for removing Gemini AI image & video watermarks.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg class='h-10 w-10 text-emerald-500' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l-1.9 5.8-5.8 1.9 5.8 1.9 1.9 5.8 1.9-5.8 5.8-1.9-5.8-1.9z'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="dev-preview.css">
+  <!-- 引入 Tailwind CSS 确保样式正常 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#10b981',
+            'primary-hover': '#059669',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-glow { animation: pulseGlow 4s ease-in-out infinite; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  </style>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('loading');
     });
   </script>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white flex flex-col min-h-screen loading">
-  
+<body class="bg-slate-950 text-slate-100 antialiased selection:bg-emerald-500 selection:text-white flex flex-col min-h-screen loading overflow-x-hidden relative">
+
+  <!-- 动态流光背景 -->
+  <div class="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none animate-glow"></div>
+  <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none animate-glow" style="animation-delay: 2s;"></div>
+
   <!-- 顶部导航 -->
-  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-xs">
-    <div class="max-w-6xl mx-auto px-6 h-18 flex items-center justify-between">
+  <header class="sticky top-0 z-50 glass-card border-b border-slate-800/60 shadow-lg shadow-black/20">
+    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-xs">
-          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+          <svg class="w-6 h-6 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m12 3-1.9 5.8-5.8 1.9 5.8 1.9 1.9 5.8 1.9-5.8 5.8-1.9-5.8-1.9Z"></path>
           </svg>
         </div>
         <div>
-          <span class="text-base font-bold tracking-tight text-slate-900 block">Gemini Watermark Remover</span>
-          <span class="text-xs text-slate-400 font-medium">反向 Alpha 混合矩阵去水印</span>
+          <span class="text-base font-bold tracking-tight text-white block">Gemini Watermark Remover</span>
+          <span class="text-xs text-emerald-400 font-medium">反向 Alpha 混合矩阵引擎</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          本地纯客户端运行
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-inner">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          100% 浏览器本地计算
         </span>
       </div>
     </div>
   </header>
 
   <!-- 主体内容区 -->
-  <main class="flex-grow max-w-5xl w-full mx-auto px-6 py-10 flex flex-col justify-center">
+  <main class="flex-grow max-w-4xl w-full mx-auto px-6 py-12 flex flex-col justify-center relative z-10">
     
     <!-- 标题和介绍 -->
     <div class="text-center max-w-2xl mx-auto mb-10">
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-        一键去除 Gemini 图像与视频水印
+      <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4 bg-gradient-to-r from-white via-slate-200 to-emerald-400 bg-clip-text text-transparent">
+        一键清除 Gemini 水印
       </h1>
-      <p class="text-slate-500 text-sm sm:text-base leading-relaxed">
-        基于数学精确的反向 Alpha 混合算法。拒绝 AI 模糊涂抹，实现百分百像素级无损复原。
+      <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+        告别模糊的 AI 涂抹，采用数学精确的反向混合矩阵，像素级无损完美复原。
       </p>
     </div>
 
-    <!-- 上传卡片区域 -->
-    <div class="bg-white rounded-2xl shadow-xl shadow-slate-100 border border-slate-200/80 p-6 sm:p-10 transition-all duration-300">
-      <div id="uploadArea" class="group relative flex flex-col items-center justify-center w-full h-72 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-emerald-50/30 hover:border-emerald-400 transition-all duration-200 cursor-pointer">
+    <!-- 上传卡片区域（带浮动特效） -->
+    <div class="glass-card rounded-3xl shadow-2xl shadow-black/40 border border-slate-800 p-8 sm:p-12 transition-all duration-300 hover:border-emerald-500/50 animate-float">
+      <div id="uploadArea" class="group relative flex flex-col items-center justify-center w-full h-72 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-900/60 hover:bg-emerald-950/20 hover:border-emerald-400 transition-all duration-300 cursor-pointer">
         <div class="flex flex-col items-center justify-center relative z-10 px-4 text-center">
-          <div class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-4 text-emerald-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+          <div class="w-18 h-18 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-xl border border-slate-700 flex items-center justify-center mb-5 text-emerald-400 group-hover:scale-110 group-hover:border-emerald-500 group-hover:shadow-emerald-500/20 transition-all duration-300">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
           </div>
-          <p class="mb-1.5 text-base font-semibold text-slate-700 group-hover:text-emerald-700 transition-colors">
-            点击或将文件拖拽到此处
+          <p class="mb-2 text-base font-bold text-slate-200 group-hover:text-emerald-300 transition-colors">
+            点击或将图片/视频拖拽到此处
           </p>
           <p class="text-xs text-slate-400">
             支持 JPG、PNG、WebP 图片及主流视频文件（支持多选批量处理）
@@ -71,34 +103,34 @@
       </div>
     </div>
 
-    <!-- 单张预览区 (默认隐藏，JS动态开启) -->
+    <!-- 单张预览区 (默认隐藏) -->
     <section id="singlePreview" class="mt-8" style="display: none;">
-      <div class="bg-white rounded-2xl shadow-xl shadow-slate-100 border border-slate-200/80 p-6 flex flex-col lg:flex-row gap-6">
+      <div class="glass-card rounded-3xl shadow-2xl border border-slate-800 p-6 sm:p-8 flex flex-col lg:flex-row gap-6">
         <div class="flex-1 overflow-hidden">
-          <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
               效果对比预览
             </h3>
             <div class="flex gap-4">
               <span id="originalInfo" class="text-xs text-slate-400 font-mono"></span>
-              <span id="processedInfo" class="text-xs text-emerald-600 font-mono font-semibold" style="display: none;"></span>
+              <span id="processedInfo" class="text-xs text-emerald-400 font-mono font-semibold" style="display: none;"></span>
             </div>
           </div>
 
-          <div class="relative w-full flex items-center justify-center bg-slate-900/5 rounded-xl overflow-hidden select-none min-h-[380px]">
+          <div class="relative w-full flex items-center justify-center bg-slate-900/80 rounded-2xl overflow-hidden select-none min-h-[380px] border border-slate-800/80">
             <div id="comparisonContainer" class="relative mx-auto w-fit max-w-full">
-              <img id="originalImage" class="block w-auto h-auto max-w-full max-h-[60vh] object-contain object-right-bottom rounded-lg" draggable="false" />
-              <div id="processedOverlay" class="absolute top-0 left-0 h-full w-[50%] overflow-hidden border-r-2 border-white shadow-lg box-content z-10" style="display: none;">
+              <img id="originalImage" class="block w-auto h-auto max-w-full max-h-[60vh] object-contain object-right-bottom rounded-xl" draggable="false" />
+              <div id="processedOverlay" class="absolute top-0 left-0 h-full w-[50%] overflow-hidden border-r-2 border-emerald-400 shadow-2xl box-content z-10" style="display: none;">
                 <img id="processedImage" class="block h-full max-w-none object-contain object-right-bottom" draggable="false" />
               </div>
               <div id="sliderHandle" class="absolute top-0 bottom-0 w-10 -ml-5 z-20 cursor-col-resize flex items-center justify-center group-hover:opacity-100 transition-opacity" style="left: 50%; display: none;">
-                <div class="absolute w-7 h-7 bg-white rounded-full shadow-md flex items-center justify-center border border-slate-100">
-                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 9l-3 3 3 3m8-6l3 3-3 3"></path></svg>
+                <div class="absolute w-7 h-7 bg-emerald-500 rounded-full shadow-lg flex items-center justify-center border-2 border-white text-white">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 9l-3 3 3 3m8-6l3 3-3 3"></path></svg>
                 </div>
               </div>
-              <div class="absolute top-3 left-3 bg-slate-900/75 backdrop-blur text-white text-xs font-medium px-2.5 py-1 rounded-md shadow-sm pointer-events-none z-30">去水印后</div>
-              <div class="absolute top-3 right-3 bg-slate-900/75 backdrop-blur text-white text-xs font-medium px-2.5 py-1 rounded-md shadow-sm pointer-events-none z-30">原图</div>
+              <div class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur text-emerald-400 text-xs font-semibold px-3 py-1 rounded-lg border border-emerald-500/30 shadow-md pointer-events-none z-30">去水印后</div>
+              <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur text-slate-300 text-xs font-semibold px-3 py-1 rounded-lg border border-slate-700 shadow-md pointer-events-none z-30">原图</div>
             </div>
           </div>
         </div>
@@ -106,19 +138,19 @@
         <!-- 操作控制面板 -->
         <div class="w-full lg:w-72 flex-shrink-0 flex flex-col justify-between pt-2">
           <div>
-            <h4 class="text-sm font-bold text-slate-800 mb-4">操作选项</h4>
+            <h4 class="text-sm font-bold text-slate-200 mb-4">操作选项</h4>
             <div class="space-y-3">
-              <button id="copyBtn" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20" style="display: none;">
+              <button id="copyBtn" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 active:scale-[0.98] text-white rounded-2xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30" style="display: none;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-1 10H8m4-3H8m1.5 6H8"></path></svg>
                 <span>复制处理结果</span>
               </button>
 
-              <button id="downloadBtn" class="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2 shadow-sm" style="display: none;">
+              <button id="downloadBtn" class="w-full py-3 px-4 bg-slate-100 hover:bg-white text-slate-900 active:scale-[0.98] rounded-2xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-white/10" style="display: none;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 <span>下载无水印文件</span>
               </button>
 
-              <button id="resetBtn" class="w-full py-2.5 px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-[0.98] rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2">
+              <button id="resetBtn" class="w-full py-3 px-4 bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white active:scale-[0.98] rounded-2xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 <span>重新选择文件</span>
               </button>
@@ -131,13 +163,13 @@
 
     <!-- 批量预览区 (默认隐藏) -->
     <section id="multiPreview" class="mt-8" style="display: none;">
-      <div class="bg-white rounded-2xl shadow-xl shadow-slate-100 border border-slate-200/80 overflow-hidden">
-        <div class="bg-slate-50/80 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+      <div class="glass-card rounded-3xl shadow-2xl border border-slate-800 overflow-hidden">
+        <div class="bg-slate-900/80 px-6 py-4 border-b border-slate-800 flex justify-between items-center">
           <div>
-            <h3 class="text-sm font-bold text-slate-800">批量处理队列</h3>
+            <h3 class="text-sm font-bold text-slate-200">批量处理队列</h3>
             <p id="progressText" class="text-xs text-slate-400 mt-0.5">处理进度: 0/0</p>
           </div>
-          <button id="batchResetBtn" class="py-2 px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-[0.98] rounded-xl text-xs font-semibold transition-all">
+          <button id="batchResetBtn" class="py-2 px-4 bg-slate-800 border border-slate-700 text-slate-200 hover:bg-slate-700 active:scale-[0.98] rounded-xl text-xs font-semibold transition-all">
             清空并重新开始
           </button>
         </div>
@@ -148,17 +180,17 @@
   </main>
 
   <!-- 底部版权 -->
-  <footer class="bg-white border-t border-slate-100 py-6 mt-auto">
-    <div class="max-w-6xl mx-auto px-6 text-center text-xs text-slate-400">
-      <p>Gemini Watermark Remover &mdash; 100% Client-side Privacy First Processing</p>
+  <footer class="bg-slate-950 border-t border-slate-900 py-6 mt-auto relative z-10">
+    <div class="max-w-6xl mx-auto px-6 text-center text-xs text-slate-500">
+      <p>Gemini Watermark Remover &mdash; High Performance 100% Client-side Processing</p>
     </div>
   </footer>
 
   <!-- 加载状态全屏遮罩 -->
-  <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/20 backdrop-blur-xs z-[60] hidden flex items-center justify-center">
-    <div class="bg-white px-6 py-4 rounded-2xl shadow-2xl border border-slate-100 flex items-center gap-3">
-      <div class="animate-spin rounded-full h-5 w-5 border-2 border-emerald-500 border-t-transparent"></div>
-      <p class="text-slate-700 text-sm font-semibold">正在通过逆向混合算法处理...</p>
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center">
+    <div class="glass-card px-8 py-6 rounded-3xl shadow-2xl border border-slate-700 flex items-center gap-4">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-emerald-400 border-t-transparent"></div>
+      <p class="text-slate-100 text-sm font-bold tracking-wide">正在通过逆向混合算法去水印...</p>
     </div>
   </div>
 
