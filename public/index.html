@@ -6,6 +6,8 @@
   <title>Gemini Watermark Remover - 智能无损去水印</title>
   <!-- 引入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入 JSZip 用于实现真正的打包 ZIP 下载 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -25,20 +27,33 @@
     }
     .animate-glow { animation: pulseGlow 4s ease-in-out infinite; }
     
-    /* 现代美化批量网格 */
+    /* 优化批量网格与卡片内文字美观度 */
     #imageList {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.25rem;
+      gap: 1.5rem;
       padding: 1.5rem;
     }
     #imageList > div, .batch-item {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 1.25rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
       overflow: hidden;
       transition: all 0.2s ease;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    #imageList > div:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+      border-color: #cbd5e1;
+    }
+    /* 修复原项目内生文字过小、不好看的问题 */
+    #imageList span, #imageList p, #imageList div {
+      font-size: 11px;
+      color: #475569;
     }
   </style>
   <script>
@@ -66,33 +81,71 @@
       observer.observe(singlePreview, { attributes: true, attributeFilter: ['style'] });
       observer.observe(multiPreview, { attributes: true, attributeFilter: ['style'] });
 
-      // 扩展功能：自动为批量区域注入“一键下载全部”按钮逻辑
+      // 完美实现一键打包为 ZIP 下载
       const multiHeader = document.querySelector('#multiPreview .bg-slate-50');
-      if (multiHeader && !document.getElementById('downloadAllBtn')) {
-        const downloadAllBtn = document.createElement('button');
-        downloadAllBtn.id = 'downloadAllBtn';
-        downloadAllBtn.className = 'py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 ml-2';
-        downloadAllBtn.innerHTML = `
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          一键下载全部
+      if (multiHeader && !document.getElementById('downloadZipBtn')) {
+        const downloadZipBtn = document.createElement('button');
+        downloadZipBtn.id = 'downloadZipBtn';
+        downloadZipBtn.className = 'py-2 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 ml-3';
+        downloadZipBtn.innerHTML = `
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          打包下载 ZIP 压缩包
         `;
-        downloadAllBtn.onclick = () => {
-          // 查找所有已处理完成的下载链接并依次触发
-          const downloadLinks = document.querySelectorAll('#imageList a.download-link, #imageList button, #imageList img');
-          // 尝试安全触发页面中生成的下载动作
-          const allButtons = document.querySelectorAll('#imageList button');
-          let count = 0;
-          allButtons.forEach(btn => {
-            if (btn.innerText && (btn.innerText.includes('下载') || btn.innerText.includes('Download'))) {
-              setTimeout(() => btn.click(), count * 300); // 错开时间依次下载，防止浏览器拦截
-              count++;
+        downloadZipBtn.onclick = async () => {
+          if (typeof JSZip === 'undefined') {
+            alert('ZIP 库加载中，请稍后再试');
+            return;
+          }
+          const zip = new JSZip();
+          const folder = zip.folder("gemini-watermark-removed");
+          
+          // 获取所有处理后的无水印图片元素
+          const images = document.querySelectorAll('#imageList img');
+          if (images.length === 0) {
+            alert('当前没有可打包的图片，请等待处理完成。');
+            return;
+          }
+
+          downloadZipBtn.innerText = '正在打包 ZIP...';
+          downloadZipBtn.disabled = true;
+
+          let addedCount = 0;
+          for (let i = 0; i < images.length; i++) {
+            const img = images[i];
+            // 确保获取的是处理后的图片（通常在队列后半部分或带有特定类名）
+            if (img.src && img.src.startsWith('data:image')) {
+              const base64Data = img.src.split(',')[1];
+              folder.file(`clean_image_${i + 1}.png`, base64Data, { base64: true });
+              addedCount++;
             }
-          });
-          if (count === 0) {
-            alert('当前没有可下载的处理结果，请等待图片处理完成。');
+          }
+
+          if (addedCount === 0) {
+            alert('未检测到已处理完成的图片，请稍候再试。');
+            downloadZipBtn.innerText = '打包下载 ZIP 压缩包';
+            downloadZipBtn.disabled = false;
+            return;
+          }
+
+          try {
+            const content = await zip.generateAsync({ type: "blob" });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `gemini_cleaned_images_${Date.now()}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          } catch (err) {
+            console.error(err);
+            alert('打包失败，请重试');
+          } finally {
+            downloadZipBtn.innerText = '打包下载 ZIP 压缩包';
+            downloadZipBtn.disabled = false;
           }
         };
-        multiHeader.querySelector('.flex').appendChild(downloadAllBtn);
+        multiHeader.querySelector('.flex').appendChild(downloadZipBtn);
       }
     });
   </script>
@@ -115,7 +168,7 @@
     </div>
     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-      100% 本地计算（支持批量下载）
+      100% 本地计算（支持 ZIP 打包下载）
     </span>
   </header>
 
@@ -221,7 +274,7 @@
             <button id="batchResetBtn" class="py-2 px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-[0.98] rounded-xl text-xs font-semibold transition-all">
               清空并重新开始
             </button>
-            <!-- 动态注入的一键下载全部按钮位置 -->
+            <!-- 动态注入的 ZIP 打包下载按钮 -->
           </div>
         </div>
         <div id="imageList"></div>
