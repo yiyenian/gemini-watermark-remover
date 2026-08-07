@@ -27,46 +27,64 @@
     }
     .animate-glow { animation: pulseGlow 4s ease-in-out infinite; }
     
-    /* 批量网格美化 */
+    /* 批量网格布局美化：固定统一大小、适当间距 */
     #imageList {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1.5rem;
-      padding: 1.5rem;
+      padding: 2rem;
     }
     #imageList > div, .batch-item {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 1.25rem;
+      border-radius: 1.5rem;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
       overflow: hidden;
       transition: all 0.2s ease;
-      padding: 1rem;
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      justify-content: space-between;
     }
     #imageList > div:hover {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08);
       border-color: #cbd5e1;
     }
 
-    /* === 核心：彻底隐藏卡片中不需要的杂乱文字、原图提示、文件名等 === */
-    #imageList span:not(button span), 
+    /* 彻底清除所有杂乱文字、文件名、原图提示等 */
+    #imageList span, 
     #imageList p, 
-    #imageList .text-xs, 
-    #imageList .text-sm {
+    #imageList div:not(:has(button, img)), 
+    #imageList small {
       display: none !important;
     }
-    /* 仅保留处理后的无水印大图和底部的下载/复制按钮 */
-    #imageList img:first-child {
-      display: none !important; /* 隐藏原图，只留去水印后的图 */
+    /* 隐藏原图，只保留去水印后的图，并固定统一高度和尺寸 */
+    #imageList img:first-of-type {
+      display: none !important; 
     }
     #imageList img {
-      border-radius: 0.75rem;
+      width: 100% !important;
+      height: 260px !important;
+      object-fit: contain !important;
+      background: #f8fafc;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+    }
+    #imageList div:has(button) {
+      display: flex !important;
+      gap: 0.5rem;
       width: 100%;
-      height: auto;
-      object-fit: contain;
+    }
+    #imageList button {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.75rem;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
     }
   </style>
   <script>
@@ -94,7 +112,7 @@
       observer.observe(singlePreview, { attributes: true, attributeFilter: ['style'] });
       observer.observe(multiPreview, { attributes: true, attributeFilter: ['style'] });
 
-      // 注入一键打包 ZIP 下载逻辑
+      // 注入一键打包 ZIP 下载按钮
       const multiHeader = document.querySelector('#multiPreview .bg-slate-50');
       if (multiHeader && !document.getElementById('downloadZipBtn')) {
         const downloadZipBtn = document.createElement('button');
@@ -167,8 +185,8 @@
   <div class="absolute top-10 left-1/3 w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl pointer-events-none animate-glow"></div>
   <div class="absolute bottom-10 right-1/4 w-96 h-96 bg-cyan-200/20 rounded-full blur-3xl pointer-events-none animate-glow" style="animation-delay: 2s;"></div>
 
-  <!-- 顶部导航 -->
-  <header class="w-full max-w-[98%] mx-auto px-4 py-2.5 flex items-center justify-between z-20 flex-shrink-0">
+  <!-- 顶部导航（收窄宽度，居中内聚，去掉右侧多余内容） -->
+  <header class="w-full max-w-5xl mx-auto px-6 py-3 flex items-center justify-between z-20 flex-shrink-0">
     <div class="flex items-center gap-2">
       <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-sm">
         <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -177,14 +195,10 @@
       </div>
       <span class="text-xs font-bold text-slate-900">Gemini Watermark Remover</span>
     </div>
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-      100% 本地计算（支持 ZIP 打包下载）
-    </span>
   </header>
 
   <!-- 主体内容区 -->
-  <main class="w-full max-w-[98%] mx-auto px-2 flex flex-col items-center justify-center z-10 flex-grow my-auto py-4">
+  <main class="w-full max-w-5xl mx-auto px-4 flex flex-col items-center justify-center z-10 flex-grow my-auto py-4">
     
     <!-- 标题和介绍 -->
     <div id="heroSection" class="text-center max-w-lg mx-auto mb-6">
@@ -273,8 +287,8 @@
       </div>
     </section>
 
-    <!-- 批量预览区（已通过 CSS 隐藏所有多余文字与原图对比，只留干净的无水印图与按钮） -->
-    <section id="multiPreview" class="w-full max-w-6xl mx-auto" style="display: none;">
+    <!-- 批量预览区 -->
+    <section id="multiPreview" class="w-full max-w-7xl mx-auto" style="display: none;">
       <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
         <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
           <div>
@@ -294,7 +308,7 @@
   </main>
 
   <!-- 底部版权 -->
-  <footer class="w-full max-w-[98%] mx-auto px-4 py-2 z-20 flex-shrink-0 text-center text-[10px] text-slate-400">
+  <footer class="w-full max-w-5xl mx-auto px-4 py-2 z-20 flex-shrink-0 text-center text-[10px] text-slate-400">
     <p>Gemini Watermark Remover &mdash; 100% Client-side Processing</p>
   </footer>
 
